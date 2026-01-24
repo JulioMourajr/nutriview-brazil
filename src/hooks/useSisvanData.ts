@@ -1,24 +1,51 @@
 import { useQuery } from '@tanstack/react-query';
 import { FilterState, SisvanData, NutritionalMetrics } from '@/types/sisvan';
 
-const API_BASE = 'https://apidadosabertos.saude.gov.br/v1/sisvan/estado-nutricional';
+// Use environment variable for API base URL with fallback
+const API_BASE = import.meta.env.VITE_SISVAN_API_URL || 'https://apidadosabertos.saude.gov.br/v1/sisvan/estado-nutricional';
+
+// All Brazilian states by region for complete data generation
+const ESTADOS_POR_REGIAO = {
+  norte: ['AC', 'AM', 'AP', 'PA', 'RO', 'RR', 'TO'],
+  nordeste: ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'],
+  centroOeste: ['DF', 'GO', 'MT', 'MS'],
+  sudeste: ['ES', 'MG', 'RJ', 'SP'],
+  sul: ['PR', 'RS', 'SC'],
+};
+
+const TODOS_ESTADOS = [
+  ...ESTADOS_POR_REGIAO.norte,
+  ...ESTADOS_POR_REGIAO.nordeste,
+  ...ESTADOS_POR_REGIAO.centroOeste,
+  ...ESTADOS_POR_REGIAO.sudeste,
+  ...ESTADOS_POR_REGIAO.sul,
+];
 
 // Mock data for demonstration when API is unavailable
 const generateMockData = (filters: FilterState): SisvanData[] => {
   const baseData: SisvanData[] = [];
-  const ufs = filters.uf ? [filters.uf] : ['SP', 'RJ', 'MG', 'BA', 'RS', 'PR', 'SC', 'GO', 'PE', 'CE'];
+  
+  // If a specific UF is selected, use only that one; otherwise use ALL states
+  const ufs = filters.uf && filters.uf !== 'all' ? [filters.uf] : TODOS_ESTADOS;
   
   ufs.forEach(uf => {
-    const base = Math.random() * 50000 + 10000;
+    // Use seeded random based on UF to ensure consistent data per state
+    const seed = uf.charCodeAt(0) + uf.charCodeAt(1);
+    const seededRandom = (offset: number) => {
+      const x = Math.sin(seed + offset) * 10000;
+      return x - Math.floor(x);
+    };
+    
+    const base = seededRandom(1) * 50000 + 10000;
     baseData.push({
       uf,
       cicloVida: filters.cicloVida || 'adulto',
       ano: parseInt(filters.ano) || 2023,
       totalAcompanhamentos: Math.floor(base),
-      magreza: Math.floor(base * (Math.random() * 0.05 + 0.02)),
-      eutrofico: Math.floor(base * (Math.random() * 0.3 + 0.35)),
-      sobrepeso: Math.floor(base * (Math.random() * 0.2 + 0.15)),
-      obesidade: Math.floor(base * (Math.random() * 0.15 + 0.1)),
+      magreza: Math.floor(base * (seededRandom(2) * 0.05 + 0.02)),
+      eutrofico: Math.floor(base * (seededRandom(3) * 0.3 + 0.35)),
+      sobrepeso: Math.floor(base * (seededRandom(4) * 0.2 + 0.15)),
+      obesidade: Math.floor(base * (seededRandom(5) * 0.15 + 0.1)),
     });
   });
   
