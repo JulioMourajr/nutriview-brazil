@@ -1,5 +1,99 @@
 # SISVAN Dashboard
 
+Dashboard de visualização do estado nutricional brasileiro usando dados abertos do SUS.
+
+## 🚀 Quick Start
+
+### Desenvolvimento Local
+
+```bash
+npm install
+npm run dev
+```
+
+### Docker (Apenas Aplicação)
+
+```bash
+docker build -t sisvan-dashboard .
+docker run -p 3000:80 sisvan-dashboard
+```
+
+### Docker Compose (Full Stack com Observabilidade)
+
+```bash
+docker-compose up -d
+```
+
+Serviços disponíveis:
+- **Aplicação**: http://localhost:3000
+- **Grafana**: http://localhost:3001 (admin/admin)
+- **Prometheus**: http://localhost:9090
+- **Loki**: http://localhost:3100
+- **Tempo**: http://localhost:3200
+
+## 📊 Observabilidade (LGTM Stack)
+
+A aplicação inclui uma stack completa de observabilidade:
+
+### Componentes
+
+| Serviço | Porta | Descrição |
+|---------|-------|-----------|
+| OpenTelemetry Collector | 4317/4318 | Gateway para traces e métricas |
+| Prometheus | 9090 | Coleta e armazenamento de métricas |
+| Loki | 3100 | Agregação de logs |
+| Tempo | 3200 | Armazenamento de traces distribuídos |
+| Promtail | - | Coleta de logs dos containers |
+| Grafana | 3001 | Visualização unificada |
+
+### Correlação Logs ↔ Traces
+
+Cada log gerado pela aplicação contém `trace_id` e `span_id`, permitindo:
+- Navegar de um log para o trace correspondente
+- Ver o contexto completo de uma requisição
+- Identificar gargalos e erros rapidamente
+
+### Dashboard Pré-configurado
+
+O Grafana vem com um dashboard "SISVAN - Observability Dashboard" que inclui:
+- **Métricas de Saúde**: Error Rate, Request Rate, P95 Latency
+- **Logs**: Visualização com link direto para traces
+- **Traces**: Explorer com waterfall de requisições
+
+## ⚙️ Variáveis de Ambiente
+
+| Variável | Descrição | Padrão |
+|----------|-----------|--------|
+| `VITE_SISVAN_API_URL` | URL base da API SISVAN | `https://apidadosabertos.saude.gov.br/v1/sisvan/estado-nutricional` |
+| `VITE_OTEL_EXPORTER_ENDPOINT` | Endpoint do OTEL Collector | `http://localhost:4318/v1/traces` |
+
+## ☸️ Kubernetes
+
+Manifestos disponíveis em `k8s/`:
+
+```bash
+kubectl apply -k k8s/
+```
+
+## 🔧 Estrutura do Projeto
+
+```
+├── src/
+│   ├── lib/telemetry.ts      # OpenTelemetry instrumentation
+│   ├── hooks/useSisvanData.ts # Data fetching with tracing
+│   └── components/            # React components
+├── observability/
+│   ├── grafana/               # Dashboards e datasources
+│   ├── prometheus/            # Configuração de scraping
+│   ├── loki/                  # Configuração de logs
+│   ├── tempo/                 # Configuração de traces
+│   ├── promtail/              # Log collection
+│   └── otel-collector/        # OTEL gateway config
+├── k8s/                       # Kubernetes manifests
+├── docker-compose.yml         # Full observability stack
+└── Dockerfile                 # Multi-stage build
+```
+
 Painel de monitoramento do estado nutricional da população brasileira, consumindo dados da API de Dados Abertos do SUS (SISVAN).
 
 ## 🚀 Funcionalidades

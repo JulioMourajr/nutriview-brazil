@@ -53,32 +53,60 @@ const generateMockData = (filters: FilterState): SisvanData[] => {
 };
 
 async function fetchSisvanData(filters: FilterState): Promise<SisvanData[]> {
-  const params = new URLSearchParams();
+  const { logger, withSpan } = await import('@/lib/telemetry');
   
-  if (filters.cicloVida) params.append('cicloVida', filters.cicloVida);
-  if (filters.uf) params.append('uf', filters.uf);
-  if (filters.municipio) params.append('municipio', filters.municipio);
-  if (filters.ano) params.append('ano', filters.ano);
+  return withSpan('sisvan.fetch_data', async (span) => {
+    const params = new URLSearchParams();
+    
+    if (filters.cicloVida) params.append('cicloVida', filters.cicloVida);
+    if (filters.uf) params.append('uf', filters.uf);
+    if (filters.municipio) params.append('municipio', filters.municipio);
+    if (filters.ano) params.append('ano', filters.ano);
 
-  try {
-    const response = await fetch(`${API_BASE}?${params.toString()}`, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+    span.setAttribute('sisvan.filters.cicloVida', filters.cicloVida || 'all');
+    span.setAttribute('sisvan.filters.uf', filters.uf || 'all');
+    span.setAttribute('sisvan.filters.ano', filters.ano || 'all');
 
-    if (!response.ok) {
-      // If API fails, use mock data
-      console.warn('API unavailable, using mock data');
+    const url = `${API_BASE}?${params.toString()}`;
+    span.setAttribute('http.url', url);
+
+    try {
+      logger.info('Fetching SISVAN data', { url, filters });
+      
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        logger.warn('API unavailable, using mock data', { 
+          status: response.status,
+          statusText: response.statusText 
+        });
+        span.setAttribute('sisvan.data_source', 'mock');
+        return generateMockData(filters);
+      }
+
+      const data = await response.json();
+      span.setAttribute('sisvan.data_source', 'api');
+      span.setAttribute('sisvan.records_count', data.length);
+      
+      logger.info('SISVAN data fetched successfully', { 
+        recordCount: data.length,
+        source: 'api'
+      });
+      
+      return data.length > 0 ? data : generateMockData(filters);
+    } catch (error) {
+      logger.error('API request failed, using mock data', { 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      span.setAttribute('sisvan.data_source', 'mock');
+      span.setAttribute('sisvan.error', true);
       return generateMockData(filters);
     }
-
-    const data = await response.json();
-    return data.length > 0 ? data : generateMockData(filters);
-  } catch (error) {
-    console.warn('API request failed, using mock data:', error);
-    return generateMockData(filters);
-  }
+  }, { 'sisvan.operation': 'fetch' });
 }
 
 export function useSisvanData(filters: FilterState) {
