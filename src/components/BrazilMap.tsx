@@ -16,11 +16,19 @@ const regions = [
 
 export function BrazilMap({ data }: BrazilMapProps) {
   const getRegionData = (states: string[]) => {
-    const regionData = data.filter((d) => states.includes(d.uf));
+    // Filter data matching any of the region's states (case-insensitive)
+    const regionData = data.filter((d) => 
+      states.some(state => state.toUpperCase() === (d.uf || '').toUpperCase())
+    );
+    
+    // Sum totals and obesity counts across all states in the region
     const total = regionData.reduce((acc, d) => acc + (d.totalAcompanhamentos || 0), 0);
     const obesidade = regionData.reduce((acc, d) => acc + (d.obesidade || 0), 0);
+    
+    // Calculate weighted percentage (obesity cases / total accompaniments)
     const percentage = total > 0 ? ((obesidade / total) * 100).toFixed(1) : '0';
-    return { total, percentage };
+    
+    return { total, percentage, statesFound: regionData.length };
   };
 
   const getColorByPercentage = (percentage: number) => {
@@ -54,7 +62,7 @@ export function BrazilMap({ data }: BrazilMapProps) {
 
         {/* Region markers */}
         {regions.map((region) => {
-          const { total, percentage } = getRegionData(region.states);
+          const { total, percentage, statesFound } = getRegionData(region.states);
           const colorClass = getColorByPercentage(parseFloat(percentage));
 
           return (

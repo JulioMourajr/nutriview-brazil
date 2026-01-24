@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  sisvan-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_SISVAN_API_URL: ${VITE_SISVAN_API_URL:-https://apidadosabertos.saude.gov.br/v1/sisvan/estado-nutricional}
+    container_name: sisvan-dashboard
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - sisvan-network
+
+networks:
+  sisvan-network:
+    driver: bridge
