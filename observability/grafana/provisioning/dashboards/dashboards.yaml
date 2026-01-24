@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: 'SISVAN Dashboards'
+    orgId: 1
+    folder: 'SISVAN'
+    folderUid: 'sisvan'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
