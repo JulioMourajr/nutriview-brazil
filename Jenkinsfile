@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs "NodeJS" // Configure o NodeJS no Jenkins com esse nome
+        nodejs 'NodeJS' // O nome deve ser igual ao configurado em Manage Jenkins > Global Tool Configuration
     }
 
     stages {
