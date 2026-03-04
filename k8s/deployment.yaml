@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sisvan-dashboard
-  namespace: sisvan-app
+  namespace: sisvan
   labels:
     app: sisvan-dashboard
     version: v1

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: sisvan-dashboard-service
-  namespace: sisvan-app
+  namespace: sisvan
 spec:
   type: NodePort
   selector:
