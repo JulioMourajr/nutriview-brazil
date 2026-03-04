@@ -2,11 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sisvan-dashboard
+  namespace: sisvan-app
   labels:
     app: sisvan-dashboard
     version: v1
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: sisvan-dashboard
@@ -21,9 +22,11 @@ spec:
         app: sisvan-dashboard
         version: v1
     spec:
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: sisvan-dashboard
-          image: sisvan-dashboard:latest
+          image: juliomourajr92/sisvandash:1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: sisvan-dashboard-ingress
+  namespace: sisvan-app
   labels:
     app: sisvan-dashboard
   annotations:

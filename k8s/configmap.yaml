@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: sisvan-dashboard-config
+  namespace: sisvan-app
   labels:
     app: sisvan-dashboard
 data:
