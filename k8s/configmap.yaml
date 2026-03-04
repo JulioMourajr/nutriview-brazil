@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: sisvan-dashboard-config
+  name: sisvan-app-config
   namespace: sisvan
   labels:
-    app: sisvan-dashboard
+    app: sisvan-app
 data:
   VITE_SISVAN_API_URL: "https://apidadosabertos.saude.gov.br/v1/sisvan/estado-nutricional"

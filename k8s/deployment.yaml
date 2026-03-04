@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sisvan-dashboard
+  name: sisvan-app
   namespace: sisvan
   labels:
-    app: sisvan-dashboard
+    app: sisvan-app
     version: v1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sisvan-dashboard
+      app: sisvan-app
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -19,13 +19,13 @@ spec:
   template:
     metadata:
       labels:
-        app: sisvan-dashboard
+        app: sisvan-app
         version: v1
     spec:
       imagePullSecrets:
         - name: regcred
       containers:
-        - name: sisvan-dashboard
+        - name: sisvan-app
           image: juliomourajr92/sisvandash:1.0
           imagePullPolicy: IfNotPresent
           ports:
