@@ -21,6 +21,8 @@ spec:
       labels:
         app: sisvan-app
         version: v1
+      annotations:
+        instrumentation.opentelemetry.io/inject-nodejs: "sisvan/sisvan-instrumentation"
     spec:
       imagePullSecrets:
         - name: regcred
